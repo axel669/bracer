@@ -1,0 +1,27 @@
+{
+  "name": "@axel669/bracer",
+  "version": "0.1.0",
+  "description": "Small testing framework for node & browser testing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axel669/bracer.git"
+  },
+  "keywords": [
+    "testing",
+    "browser",
+    "node"
+  ],
+  "author": "Axel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/axel669/bracer/issues"
+  },
+  "homepage": "https://github.com/axel669/bracer#readme",
+  "devDependencies": {
+    "@axel669/terminal-tools": "^0.1.0"
+  }
+}

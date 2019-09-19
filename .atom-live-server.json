@@ -1,0 +1,5 @@
+{
+    "port": 1337,
+    "no-browser": true,
+    "ignore": "**"
+}
