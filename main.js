@@ -12,7 +12,7 @@ topkek.logAll = (title, ...args) => {
 }
 
 const terminal = require("@axel669/terminal-tools/terminal/")
-const bracer = require("./src/bracer.js")
+const bracer = require("./src/node/bracer.js")
 
 const reportResults = result => {
     if (result.type === "test") {

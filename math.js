@@ -7,6 +7,8 @@ const avg = nums => (
     / nums.length
 )
 
+console.log(wat)
+
 module.exports = {
     sum,
     avg,

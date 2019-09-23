@@ -44,7 +44,7 @@ const runTests = async (files, options = {}) => {
 
         bridge.dispatch("onFileEnter", file)
 
-        const testFunc = new AsyncFunction(
+        const testFunc = new Function(
             ...testFunctions.names,
             "require",
             "__filename",
@@ -57,7 +57,7 @@ const runTests = async (files, options = {}) => {
             "suite.create",
             suite => suites.push(suite)
         )
-        await testFunc(
+        testFunc(
             ...testFunctions.args,
             testModule.require,
             file

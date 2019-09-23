@@ -7,7 +7,7 @@ const bridge = {
             id,
             dispatch: handler
         }
-        const handlers = subscriptions[type] || []
+        const handlers = subscriptions[type] ?? []
 
         subscriptions[type] = [
             ...handlers,
@@ -21,7 +21,7 @@ const bridge = {
         }
     },
     dispatch: (type, data) => {
-        const listeners = subscriptions[type] || []
+        const listeners = subscriptions[type] ?? []
         for (const listener of listeners) {
             listener.dispatch(data, type)
         }
