@@ -1,3 +1,5 @@
+"use strict";
+
 const subscriptions = {};
 const bridge = {
   subscribe: (type, handler) => {

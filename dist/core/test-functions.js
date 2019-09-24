@@ -1,3 +1,5 @@
+"use strict";
+
 const bridge = require("./bridge.js");
 
 const expect = require("./expect.js");

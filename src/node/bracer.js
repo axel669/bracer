@@ -25,6 +25,20 @@ const loadFile = async url => {
     )
 }
 
+const getSuitesFromFile = (testFunc, ...args) => {
+    const suites = []
+    const unsub = bridge.subscribe(
+        "suite.create",
+        suite => suites.push(suite)
+    )
+    testFunc(...args)
+    unsub()
+
+    return suites.filter(
+        suite => suite.parent === undefined
+    )
+}
+
 const runTests = async (files, options = {}) => {
     const {
         reporter = {},
@@ -52,27 +66,19 @@ const runTests = async (files, options = {}) => {
         )
         const testModule = new Module(file, module)
 
-        const suites = []
-        const unsub = bridge.subscribe(
-            "suite.create",
-            suite => suites.push(suite)
-        )
-        testFunc(
+        const suites = getSuitesFromFile(
+            testFunc,
             ...testFunctions.args,
             testModule.require,
             file
         )
-        unsub()
 
-        const topSuites = suites.filter(
-            suite => suite.parent === undefined
-        )
         const fileSuite = {
             type: "file",
             filename: file,
             results: [],
         }
-        for (const suite of topSuites) {
+        for (const suite of suites) {
             if (suite.shouldRun) {
                 const spec = {
                     name: suite.name,

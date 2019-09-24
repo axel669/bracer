@@ -1,3 +1,5 @@
+"use strict";
+
 const bridge = require("./bridge.js");
 
 const nope = f => (...args) => !f(...args);

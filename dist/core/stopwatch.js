@@ -1,3 +1,5 @@
+"use strict";
+
 const perf = typeof window === "undefined" ? require("perf_hooks").performance : window.performance;
 
 const stopwatch = (autoStart = false) => {

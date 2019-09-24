@@ -1,3 +1,5 @@
+"use strict";
+
 const {
   Module
 } = require("module");
@@ -39,11 +41,11 @@ const runTests = async (files, options = {}) => {
   for (const file of files) {
     const source = await loadFile(file);
     bridge.dispatch("onFileEnter", file);
-    const testFunc = new AsyncFunction(...testFunctions.names, "require", "__filename", source);
+    const testFunc = new Function(...testFunctions.names, "require", "__filename", source);
     const testModule = new Module(file, module);
     const suites = [];
     const unsub = bridge.subscribe("suite.create", suite => suites.push(suite));
-    await testFunc(...testFunctions.args, testModule.require, file);
+    testFunc(...testFunctions.args, testModule.require, file);
     unsub();
     const topSuites = suites.filter(suite => suite.parent === undefined);
     const fileSuite = {

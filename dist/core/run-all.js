@@ -1,3 +1,5 @@
+"use strict";
+
 const runAll = async (actions, ...args) => {
   for (const action of actions) {
     const f = action.run || action;
