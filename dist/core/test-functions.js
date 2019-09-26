@@ -1,32 +1,35 @@
 "use strict";
 
-const bridge = require("./bridge.js");
+var _bridge = _interopRequireDefault(require("./bridge.js"));
 
-const expect = require("./expect.js");
+var _expect = _interopRequireDefault(require("./expect.js"));
 
-const takeType = require("./take-type.js");
+var _takeType = _interopRequireDefault(require("./take-type.js"));
 
-const runAll = require("./run-all.js");
+var _runAll = _interopRequireDefault(require("./run-all.js"));
 
-const stopwatch = require("./stopwatch.js");
+var _stopwatch = _interopRequireDefault(require("./stopwatch.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const suite = (name, ...tests) => {
   const activeTests = tests.filter(test => test.shouldRun);
-  const runnableTests = takeType(activeTests, ["test", "suite"]);
-  const setups = takeType(activeTests, ["setup"]);
-  const teardowns = takeType(activeTests, ["teardown"]);
-  const beforeEach = takeType(activeTests, ["beforeEach"]);
-  const afterEach = takeType(activeTests, ["afterEach"]);
+  const runnableTests = (0, _takeType.default)(activeTests, "test", "suite");
+  const setups = (0, _takeType.default)(activeTests, "setup");
+  const teardowns = (0, _takeType.default)(activeTests, "teardown");
+  const beforeEach = (0, _takeType.default)(activeTests, "beforeEach");
+  const afterEach = (0, _takeType.default)(activeTests, "afterEach");
   const self = {
     name,
     shouldRun: true,
     type: "suite",
     run: async (spec, specFilter, parentBefore, parentAfter) => {
-      bridge.dispatch("onSuiteStart", spec);
+      _bridge.default.dispatch("onSuiteStart", spec);
+
       const testList = runnableTests.filter(specFilter);
       spec.results = [];
-      await runAll(setups, spec.env);
-      const watch = stopwatch(true);
+      await (0, _runAll.default)(setups, spec.env);
+      const watch = (0, _stopwatch.default)(true);
 
       for (const test of testList) {
         const pathNodes = [...spec.pathNodes, test.name];
@@ -46,13 +49,16 @@ const suite = (name, ...tests) => {
       }
 
       watch.stop();
-      await runAll(teardowns, spec.env);
+      await (0, _runAll.default)(teardowns, spec.env);
       spec.duration = watch.read();
-      bridge.dispatch("onSuiteFinish", spec);
+
+      _bridge.default.dispatch("onSuiteFinish", spec);
     }
   };
   tests.forEach(test => test.parent = self);
-  bridge.dispatch("suite.create", self);
+
+  _bridge.default.dispatch("suite.create", self);
+
   return self;
 };
 
@@ -81,12 +87,14 @@ const test = (name, testFunc) => {
     shouldRun: true,
     type: "test",
     run: async (spec, _, before, after) => {
-      await runAll(before, spec.env);
-      const watch = stopwatch(true);
-      bridge.dispatch("onTestStart", spec);
+      await (0, _runAll.default)(before, spec.env);
+      const watch = (0, _stopwatch.default)(true);
+
+      _bridge.default.dispatch("onTestStart", spec);
+
       const errors = [];
       let passed = 0;
-      const subscriptions = [bridge.subscribe("expect.fail", message => errors.push(message)), bridge.subscribe("expect.pass", () => passed += 1)];
+      const subscriptions = [_bridge.default.subscribe("expect.fail", message => errors.push(message)), _bridge.default.subscribe("expect.pass", () => passed += 1)];
       await testFunc(spec);
 
       for (const unsub of subscriptions) {
@@ -98,8 +106,10 @@ const test = (name, testFunc) => {
       spec.errors = errors;
       watch.stop();
       spec.duration = watch.read();
-      bridge.dispatch("onTestFinish", spec);
-      await runAll(after, spec.env);
+
+      _bridge.default.dispatch("onTestFinish", spec);
+
+      await (0, _runAll.default)(after, spec.env);
     }
   };
 };
@@ -112,7 +122,22 @@ const xsuite = (name, ...tests) => {
   return self;
 };
 
-const argFuncs = [["suite", suite], ["setup", setup], ["teardown", teardown], ["test", test], ["beforeEach", beforeEach], ["afterEach", afterEach], ["xsuite", xsuite], ["xsetup", xsetup], ["xteardown", xteardown], ["xtest", xtest], ["xbeforeEach", xbeforeEach], ["xafterEach", xafterEach], ["expect", expect], ["testCases", testCases]];
+const argFuncs = Object.entries({
+  suite,
+  setup,
+  teardown,
+  test,
+  beforeEach,
+  afterEach,
+  xsuite,
+  xsetup,
+  xteardown,
+  xtest,
+  xbeforeEach,
+  xafterEach,
+  expect: _expect.default,
+  testCases
+});
 const argNames = argFuncs.map(arg => arg[0]);
 const argValues = argFuncs.map(arg => arg[1]);
 module.exports = {

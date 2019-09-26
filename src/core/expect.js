@@ -1,4 +1,4 @@
-const bridge = require("./bridge.js")
+import bridge from "@core/bridge.js"
 
 const nope = f => (...args) => !f(...args)
 

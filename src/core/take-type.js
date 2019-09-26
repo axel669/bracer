@@ -1,4 +1,4 @@
-const takeType = (array, types) => array.filter(
+const takeType = (array, ...types) => array.filter(
     item => types.indexOf(item.type) !== -1
 )
 

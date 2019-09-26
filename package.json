@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run build && bracer",
-    "build": "babel src -d dist"
+    "build": "rm dist -rf && babel src -d dist"
   },
   "bin": {
     "bracer": "./dist/test.js"

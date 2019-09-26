@@ -1,29 +1,10 @@
-const {Module} = require("module")
-const path = require("path")
+import path from "path"
 
-const bridge = require("../core/bridge.js")
+import bridge from "@core/bridge.js"
 
-const testFunctions = require("./test-functions.js")
-const runAll = require("./run-all.js")
-const stopwatch = require("./stopwatch.js")
-
-const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor
-const loadFile = async url => {
-    if (typeof window !== "undefined") {
-        const response = await fetch(url)
-        return response.text()
-    }
-
-    return new Promise(
-        resolve => {
-            require("fs").readFile(
-                url,
-                {encoding: "utf8"},
-                (err, data) => resolve(data)
-            )
-        }
-    )
-}
+import testFunctions from "@core/test-functions.js"
+import runAll from "@core/run-all.js"
+import stopwatch from "@core/stopwatch.js"
 
 const getSuitesFromFile = (testFunc, ...args) => {
     const suites = []
@@ -39,8 +20,11 @@ const getSuitesFromFile = (testFunc, ...args) => {
     )
 }
 
-const runTests = async (files, options = {}) => {
+const runTests = async (options = {}) => {
     const {
+        files,
+        loadFile,
+        generateRequire,
         reporter = {},
         filter = () => true,
     } = options
@@ -53,10 +37,10 @@ const runTests = async (files, options = {}) => {
     bridge.dispatch("onBracerStart")
 
     const completedSuites = []
-    for (const file of files) {
-        const source = await loadFile(file)
+    for (const [shortName, fileName] of files) {
+        const source = await loadFile(fileName)
 
-        bridge.dispatch("onFileEnter", file)
+        bridge.dispatch("onFileEnter", shortName)
 
         const testFunc = new Function(
             ...testFunctions.names,
@@ -64,18 +48,17 @@ const runTests = async (files, options = {}) => {
             "__filename",
             source,
         )
-        const testModule = new Module(file, module)
 
         const suites = getSuitesFromFile(
             testFunc,
             ...testFunctions.args,
-            testModule.require,
-            file
+            generateRequire(fileName),
+            fileName
         )
 
         const fileSuite = {
             type: "file",
-            filename: file,
+            filename: shortName,
             results: [],
         }
         for (const suite of suites) {
@@ -97,7 +80,7 @@ const runTests = async (files, options = {}) => {
         }
         completedSuites.push(fileSuite)
 
-        bridge.dispatch("onFileExit", file)
+        bridge.dispatch("onFileExit", shortName)
     }
     bridge.dispatch("onBracerFinish", completedSuites)
     runAll(reporterFuncs)
@@ -105,6 +88,6 @@ const runTests = async (files, options = {}) => {
     return completedSuites
 }
 
-module.exports = {
+export default {
     run: runTests,
 }

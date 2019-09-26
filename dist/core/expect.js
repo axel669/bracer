@@ -1,16 +1,19 @@
 "use strict";
 
-const bridge = require("./bridge.js");
+var _bridge = _interopRequireDefault(require("./bridge.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const nope = f => (...args) => !f(...args);
 
 const equals = (a, b) => {
   if (a !== b) {
-    bridge.dispatch("expect.fail", `Expected ${JSON.stringify(a)} === ${JSON.stringify(b)}`);
+    _bridge.default.dispatch("expect.fail", `Expected ${JSON.stringify(a)} === ${JSON.stringify(b)}`);
+
     return;
   }
 
-  bridge.dispatch("expect.pass");
+  _bridge.default.dispatch("expect.pass");
 };
 
 const toBe = (a, b) => {
@@ -119,11 +122,13 @@ module.exports = value => {
       const pass = expectation.test(value, ...args);
 
       if (pass === false) {
-        bridge.dispatch("expect.fail", new Error(expectation.message(value, ...args)));
+        _bridge.default.dispatch("expect.fail", new Error(expectation.message(value, ...args)));
+
         return expector;
       }
 
-      bridge.dispatch("expect.pass");
+      _bridge.default.dispatch("expect.pass");
+
       return expector;
     };
 
@@ -136,11 +141,13 @@ module.exports = value => {
       const pass = !expectation.test(value, ...args);
 
       if (pass === false) {
-        bridge.dispatch("expect.fail", new Error(expectation.message(value, ...args)));
+        _bridge.default.dispatch("expect.fail", new Error(expectation.message(value, ...args)));
+
         return expector;
       }
 
-      bridge.dispatch("expect.pass");
+      _bridge.default.dispatch("expect.pass");
+
       return expector;
     };
 

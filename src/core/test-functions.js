@@ -1,16 +1,16 @@
-const bridge = require("./bridge.js")
-const expect = require("./expect.js")
-const takeType = require("./take-type.js")
-const runAll = require("./run-all.js")
-const stopwatch = require("./stopwatch.js")
+import bridge from "@core/bridge.js"
+import expect from "@core/expect.js"
+import takeType from "@core/take-type.js"
+import runAll from "@core/run-all.js"
+import stopwatch from "@core/stopwatch.js"
 
 const suite = (name, ...tests) => {
     const activeTests = tests.filter(test => test.shouldRun)
-    const runnableTests = takeType(activeTests, ["test", "suite"])
-    const setups = takeType(activeTests, ["setup"])
-    const teardowns = takeType(activeTests, ["teardown"])
-    const beforeEach = takeType(activeTests, ["beforeEach"])
-    const afterEach = takeType(activeTests, ["afterEach"])
+    const runnableTests = takeType(activeTests, "test", "suite")
+    const setups = takeType(activeTests, "setup")
+    const teardowns = takeType(activeTests, "teardown")
+    const beforeEach = takeType(activeTests, "beforeEach")
+    const afterEach = takeType(activeTests, "afterEach")
     const self = {
         name,
         shouldRun: true,
@@ -129,22 +129,22 @@ const xsuite = (name, ...tests) => {
     return self
 }
 
-const argFuncs = [
-    ["suite", suite],
-    ["setup", setup],
-    ["teardown", teardown],
-    ["test", test],
-    ["beforeEach", beforeEach],
-    ["afterEach", afterEach],
-    ["xsuite", xsuite],
-    ["xsetup", xsetup],
-    ["xteardown", xteardown],
-    ["xtest", xtest],
-    ["xbeforeEach", xbeforeEach],
-    ["xafterEach", xafterEach],
-    ["expect", expect],
-    ["testCases", testCases],
-]
+const argFuncs = Object.entries({
+    suite,
+    setup,
+    teardown,
+    test,
+    beforeEach,
+    afterEach,
+    xsuite,
+    xsetup,
+    xteardown,
+    xtest,
+    xbeforeEach,
+    xafterEach,
+    expect,
+    testCases,
+})
 const argNames = argFuncs.map(arg => arg[0])
 const argValues = argFuncs.map(arg => arg[1])
 
