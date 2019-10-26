@@ -1,6 +1,10 @@
 "use strict";
 
-const perf = typeof window === "undefined" ? require("perf_hooks").performance : window.performance;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+const perf = typeof performance === "undefined" ? require("perf_hooks").performance : performance;
 
 const stopwatch = (autoStart = false) => {
   const time = {
@@ -40,4 +44,5 @@ const stopwatch = (autoStart = false) => {
   };
 };
 
-module.exports = stopwatch;
+var _default = stopwatch;
+exports.default = _default;

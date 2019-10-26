@@ -5,4 +5,4 @@ const runAll = async (actions, ...args) => {
     }
 }
 
-module.exports = runAll
+export default runAll

@@ -9,6 +9,8 @@ var _fs = _interopRequireDefault(require("fs"));
 
 var _module = require("module");
 
+var _fastGlob = _interopRequireDefault(require("fast-glob"));
+
 var _bracer = _interopRequireDefault(require("../core/bracer.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -31,11 +33,22 @@ const generateRequire = file => {
   return mod.require;
 };
 
-var _default = (files, options) => _bracer.default.run({
-  files,
-  loadFile,
-  generateRequire,
-  ...options
-});
+var _default = (fileOptions, options) => {
+  const {
+    include,
+    ignore = []
+  } = fileOptions;
+
+  const files = _fastGlob.default.sync(include, {
+    ignore: ["node_modules/**/*", ...ignore]
+  });
+
+  return _bracer.default.run({
+    files,
+    loadFile,
+    generateRequire,
+    ...options
+  });
+};
 
 exports.default = _default;

@@ -1,5 +1,3 @@
-import path from "path"
-
 import bridge from "@core/bridge.js"
 
 import testFunctions from "@core/test-functions.js"
@@ -26,7 +24,7 @@ const runTests = async (options = {}) => {
         loadFile,
         generateRequire,
         reporter = {},
-        filter = () => true,
+        specFilter = () => true,
     } = options
 
     const reporterFuncs = Object.entries(reporter)
@@ -37,7 +35,9 @@ const runTests = async (options = {}) => {
     bridge.dispatch("onBracerStart")
 
     const completedSuites = []
-    for (const [shortName, fileName] of files) {
+    // for (const [shortName, fileName] of files) {
+    for (const fileName of files) {
+        const shortName = fileName
         const source = await loadFile(fileName)
 
         bridge.dispatch("onFileEnter", shortName)
@@ -58,24 +58,27 @@ const runTests = async (options = {}) => {
 
         const fileSuite = {
             type: "file",
-            filename: shortName,
+            fileName: shortName,
             results: [],
+            suite: null,
         }
         for (const suite of suites) {
             if (suite.shouldRun) {
                 const spec = {
                     name: suite.name,
-                    suite: null,
+                    suite: fileSuite,
                     pathNodes: [suite.name],
                     path: suite.name,
                     type: "suite",
-                    env: {}
+                    env: {},
                 }
-                const watch = stopwatch(true)
-                await suite.run(spec, filter, [], [])
-                watch.stop()
-                fileSuite.duration = watch.read()
-                fileSuite.results.push(spec)
+                if (specFilter(spec) === true) {
+                    const watch = stopwatch(true)
+                    await suite.run(spec, specFilter, [], [])
+                    watch.stop()
+                    fileSuite.duration = watch.read()
+                    fileSuite.results.push(spec)
+                }
             }
         }
         completedSuites.push(fileSuite)

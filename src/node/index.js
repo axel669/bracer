@@ -1,6 +1,8 @@
 import fs from "fs"
 import {Module} from "module"
 
+import glob from "fast-glob"
+
 import bracer from "@core/bracer.js"
 
 const loadFile = async url => {
@@ -25,9 +27,21 @@ const generateRequire = (file) => {
     return mod.require
 }
 
-export default (files, options) => bracer.run({
-    files,
-    loadFile,
-    generateRequire,
-    ...options,
-})
+export default (fileOptions, options) => {
+    const {include, ignore = []} = fileOptions
+    const files = glob.sync(
+        include,
+        {
+            ignore: [
+                "node_modules/**/*",
+                ...ignore,
+            ]
+        }
+    )
+    return bracer.run({
+        files,
+        loadFile,
+        generateRequire,
+        ...options,
+    })
+}

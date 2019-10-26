@@ -7,12 +7,12 @@ var _fastGlob = _interopRequireDefault(require("fast-glob"));
 
 var _terminal = _interopRequireDefault(require("@axel669/terminal-tools/terminal"));
 
-var _index = _interopRequireDefault(require("./node/index.js"));
+var _index = _interopRequireDefault(require("node/index.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const files = _fastGlob.default.sync(["**/*.test.js"], {
-  ignore: "node_modules/**/*"
+  ignore: ["node_modules/**/*"]
 });
 
 const stuffs = files.map(file => [file, _path.default.resolve(file)]);
@@ -84,8 +84,8 @@ const reportResults = result => {
       console.log(`Tests finished in ${duration.toFixed(3)}ms`);
     }
   },
-  runFilter: spec => {
-    console.log(spec);
+  specFilter: spec => {
+    // console.log(spec.name, spec.path)
     return true;
   }
 }); // console.log(runTests)

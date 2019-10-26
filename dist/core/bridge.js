@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 const subscriptions = {};
 const bridge = {
   subscribe: (type, handler) => {
@@ -26,4 +30,5 @@ const bridge = {
     }
   }
 };
-module.exports = bridge;
+var _default = bridge;
+exports.default = _default;

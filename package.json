@@ -2,13 +2,14 @@
   "name": "@axel669/bracer",
   "version": "0.1.0",
   "description": "Small testing framework for node & browser testing",
-  "main": "index.js",
+  "main": "dist/node/index.js",
   "scripts": {
     "test": "npm run build && bracer",
-    "build": "rm dist -rf && babel src -d dist"
+    "build": "rm dist -rf && babel src --config-file ./babel.node.config.js -d dist --ignore src/browser/*",
+    "build-browser": "rollup -c"
   },
   "bin": {
-    "bracer": "./dist/test.js"
+    "bracer": "./dist/cli/index.js"
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.2.0",
     "@babel/plugin-transform-modules-commonjs": "^7.6.0",
     "babel-plugin-anchor-imports": "^1.0.3",
-    "fast-glob": "^3.0.4",
+    "node-fetch": "^2.6.0",
     "rollup": "^1.9.0",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.2.0",
@@ -41,6 +42,7 @@
     "rollup-plugin-terser": "^4.0.4"
   },
   "dependencies": {
-    "node-fetch": "^2.6.0"
+    "@axel669/arg-parser": "^0.2.0",
+    "fast-glob": "^3.0.4"
   }
 }

@@ -28,4 +28,4 @@ const bridge = {
     },
 }
 
-module.exports = bridge
+export default bridge

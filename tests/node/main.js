@@ -1,32 +1,20 @@
-#! /usr/bin/env node
+const terminal = require("@axel669/terminal-tools/terminal/")
+const bracer = require("../../dist/node/").default
 
-import path from "path"
-
-import glob from "fast-glob"
-import terminal from "@axel669/terminal-tools/terminal"
-
-import runTests from "@node/index.js"
-
-const files = glob.sync(
-    ["**/*.test.js"],
-    {
-        ignore: [
-            "node_modules/**/*",
-        ],
+const getFileName = test => {
+    let suite = test.suite
+    while (suite.type !== "file") {
+        suite = suite.suite
     }
-)
 
-const stuffs = files
-    .map(file => [
-        file,
-        path.resolve(file),
-    ])
-
+    return suite.fileName
+}
 const reportResults = result => {
     if (result.type === "test") {
-        // console.log(result.path)
+        // console.log(result)
         if (result.failed > 0) {
-            console.log(result.pathNodes.join("/"))
+            const fileName = getFileName(result)
+            console.log(`${fileName}: ${result.pathNodes.join("/")}`)
             for (const error of result.errors) {
                 console.log(`  ${error.message}`)
             }
@@ -38,8 +26,12 @@ const reportResults = result => {
         reportResults(testResult)
     }
 }
-runTests(
-    stuffs,
+bracer(
+    {
+        include: [
+            "**/math.test.js",
+        ],
+    },
     {
         reporter: {
             onFileEnter: filename => {
@@ -86,11 +78,9 @@ runTests(
                 console.log(`Tests finished in ${duration.toFixed(3)}ms`)
             },
         },
-        specFilter: (spec) => {
-            // console.log(spec.name, spec.path)
+        runFilter: (spec) => {
+            console.log(spec)
             return true
         },
     }
 )
-
-// console.log(runTests)

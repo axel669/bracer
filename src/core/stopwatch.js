@@ -1,6 +1,6 @@
-const perf = (typeof window === "undefined")
+const perf = (typeof performance === "undefined")
     ? require("perf_hooks").performance
-    : window.performance
+    : performance
 
 const stopwatch = (autoStart = false) => {
     const time = {
@@ -39,4 +39,4 @@ const stopwatch = (autoStart = false) => {
     }
 }
 
-module.exports = stopwatch
+export default stopwatch

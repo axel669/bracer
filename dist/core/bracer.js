@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _path = _interopRequireDefault(require("path"));
-
 var _bridge = _interopRequireDefault(require("./bridge.js"));
 
 var _testFunctions = _interopRequireDefault(require("./test-functions.js"));
@@ -33,15 +31,16 @@ const runTests = async (options = {}) => {
     loadFile,
     generateRequire,
     reporter = {},
-    filter = () => true
+    specFilter = () => true
   } = options;
   const reporterFuncs = Object.entries(reporter).map(([type, handler]) => _bridge.default.subscribe(type, handler));
 
   _bridge.default.dispatch("onBracerStart");
 
-  const completedSuites = [];
+  const completedSuites = []; // for (const [shortName, fileName] of files) {
 
-  for (const [shortName, fileName] of files) {
+  for (const fileName of files) {
+    const shortName = fileName;
     const source = await loadFile(fileName);
 
     _bridge.default.dispatch("onFileEnter", shortName);
@@ -50,25 +49,29 @@ const runTests = async (options = {}) => {
     const suites = getSuitesFromFile(testFunc, ..._testFunctions.default.args, generateRequire(fileName), fileName);
     const fileSuite = {
       type: "file",
-      filename: shortName,
-      results: []
+      fileName: shortName,
+      results: [],
+      suite: null
     };
 
     for (const suite of suites) {
       if (suite.shouldRun) {
         const spec = {
           name: suite.name,
-          suite: null,
+          suite: fileSuite,
           pathNodes: [suite.name],
           path: suite.name,
           type: "suite",
           env: {}
         };
-        const watch = (0, _stopwatch.default)(true);
-        await suite.run(spec, filter, [], []);
-        watch.stop();
-        fileSuite.duration = watch.read();
-        fileSuite.results.push(spec);
+
+        if (specFilter(spec) === true) {
+          const watch = (0, _stopwatch.default)(true);
+          await suite.run(spec, specFilter, [], []);
+          watch.stop();
+          fileSuite.duration = watch.read();
+          fileSuite.results.push(spec);
+        }
       }
     }
 

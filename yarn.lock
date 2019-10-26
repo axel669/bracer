@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@axel669/arg-parser@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@axel669/arg-parser/-/arg-parser-0.2.0.tgz#27331bdc3bebbb54cb9b881de563fe8bea84b18c"
+  integrity sha512-hMTd6zzzpAl8ihPGtoD0kBtrEEvVnj0RYv0HgZdxPJIPdNgjhhhq5X5y0J9iZJMIR+rRJqrdm2+2kPabZuInVg==
+
 "@axel669/range@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@axel669/range/-/range-1.0.0.tgz#bd4fa698b725b8bbf2967a0165340a50e3cb4adf"

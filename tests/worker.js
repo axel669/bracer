@@ -1,24 +1,86 @@
-const topkek = typeof window !== "undefined" ? window : global
+// importScripts(
+//     "../standalone/index.js"
+// )
 
-topkek.logAll = (title, ...args) => {
-    console.log(
-        `${title}${"-".repeat(40)}`
-            .slice(0, 40)
-    )
-    for (const arg of args) {
-        console.log(arg)
+const terminal = (() => {
+    const stylestr = colorNum => `\u001b[${colorNum}m`
+    const styles = {
+        reset: stylestr(0),
+        black: stylestr(30),
+        red: stylestr(31),
+        green: stylestr(32),
+        yellow: stylestr(33),
+        blue: stylestr(34),
+        magenta: stylestr(35),
+        cyan: stylestr(36),
+        white: stylestr(37),
+        gray: stylestr(90),
+        bgBlack: stylestr(40),
+        bgRed: stylestr(41),
+        bgGreen: stylestr(42),
+        bgYellow: stylestr(43),
+        bgBlue: stylestr(44),
+        bgMagenta: stylestr(45),
+        bgCyan: stylestr(46),
+        bgWhite: stylestr(47),
+        bold: stylestr(1),
+        dim: stylestr(2),
+        italic: stylestr(3),
+        underline: stylestr(4),
+        inverse: stylestr(7),
+        hidden: stylestr(8),
+        strikethrough: stylestr(9),
     }
-    console.log("-".repeat(40))
+
+    const colorize = (coloration) => {
+        const prefix = coloration
+            .map(style => styles[style])
+            .join("")
+
+        return obj => `${prefix}${obj}${styles.reset}`
+    }
+    const format = (obj, coloration) => colorize(coloration)(obj)
+    const terminal = (obj, coloration = []) =>
+        console.log(
+            format(obj, coloration)
+        )
+
+    terminal.colorize = colorize
+    terminal.format = format
+    terminal.write = (obj, coloration = []) =>
+        process.stdout.write(
+            format(obj, coloration)
+        )
+
+    return terminal
+})()
+
+// const isDefined = value => (
+//     value !== null
+//     && value !== undefined
+// )
+// const climb = (source, prop, until) => {
+//     let current = source[prop]
+//     while (until(current) === false && isDefined(current)) {
+//         current = current[prop]
+//     }
+//
+//     return current
+// }
+const getFileName = test => {
+    let suite = test.suite
+    while (suite.type !== "file") {
+        suite = suite.suite
+    }
+
+    return suite.fileName
 }
-
-const terminal = require("@axel669/terminal-tools/terminal/")
-const bracer = require("./src/node/bracer.js")
-
 const reportResults = result => {
     if (result.type === "test") {
-        // console.log(result.path)
+        // console.log(result)
         if (result.failed > 0) {
-            console.log(result.pathNodes.join("/"))
+            const fileName = getFileName(result)
+            console.log(`${fileName}: ${result.pathNodes.join("/")}`)
             for (const error of result.errors) {
                 console.log(`  ${error.message}`)
             }
@@ -30,9 +92,10 @@ const reportResults = result => {
         reportResults(testResult)
     }
 }
-bracer.run(
+bracer(
     [
         "math.test.js",
+        "dom.test.js",
     ],
     {
         reporter: {
@@ -80,8 +143,8 @@ bracer.run(
                 console.log(`Tests finished in ${duration.toFixed(3)}ms`)
             },
         },
-        runFilter: (spec) => {
-            console.log(spec)
+        specFilter: (spec) => {
+            // console.log(spec.name, spec.path)
             return true
         },
     }

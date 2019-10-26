@@ -1,5 +1,10 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 var _bridge = _interopRequireDefault(require("./bridge.js"));
 
 var _expect = _interopRequireDefault(require("./expect.js"));
@@ -26,7 +31,7 @@ const suite = (name, ...tests) => {
     run: async (spec, specFilter, parentBefore, parentAfter) => {
       _bridge.default.dispatch("onSuiteStart", spec);
 
-      const testList = runnableTests.filter(specFilter);
+      const testList = runnableTests;
       spec.results = [];
       await (0, _runAll.default)(setups, spec.env);
       const watch = (0, _stopwatch.default)(true);
@@ -42,10 +47,13 @@ const suite = (name, ...tests) => {
           type: test.type,
           pathNodes
         };
-        const before = [...parentBefore, ...beforeEach];
-        const after = [...parentAfter, ...afterEach];
-        await test.run(newSpec, specFilter, before, after);
-        spec.results.push(newSpec);
+
+        if (specFilter(newSpec) === true) {
+          const before = [...parentBefore, ...beforeEach];
+          const after = [...parentAfter, ...afterEach];
+          await test.run(newSpec, specFilter, before, after);
+          spec.results.push(newSpec);
+        }
       }
 
       watch.stop();
@@ -86,7 +94,7 @@ const test = (name, testFunc) => {
     name,
     shouldRun: true,
     type: "test",
-    run: async (spec, _, before, after) => {
+    run: async (spec, _0, before, after) => {
       await (0, _runAll.default)(before, spec.env);
       const watch = (0, _stopwatch.default)(true);
 
@@ -140,7 +148,8 @@ const argFuncs = Object.entries({
 });
 const argNames = argFuncs.map(arg => arg[0]);
 const argValues = argFuncs.map(arg => arg[1]);
-module.exports = {
+var _default = {
   names: argNames,
   args: argValues
 };
+exports.default = _default;

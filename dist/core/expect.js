@@ -1,5 +1,10 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 var _bridge = _interopRequireDefault(require("./bridge.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -114,7 +119,7 @@ const expectations = {
   }
 };
 
-module.exports = value => {
+var _default = value => {
   const expector = Object.entries(expectations).reduce((ex, info) => {
     const [name, expectation] = info;
 
@@ -155,3 +160,5 @@ module.exports = value => {
   }, {});
   return expector;
 };
+
+exports.default = _default;

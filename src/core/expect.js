@@ -119,7 +119,7 @@ const expectations = {
     },
 }
 
-module.exports = (value) => {
+export default (value) => {
     const expector = Object
         .entries(expectations)
         .reduce(

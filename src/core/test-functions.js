@@ -17,7 +17,7 @@ const suite = (name, ...tests) => {
         type: "suite",
         run: async (spec, specFilter, parentBefore, parentAfter) => {
             bridge.dispatch("onSuiteStart", spec)
-            const testList = runnableTests.filter(specFilter)
+            const testList = runnableTests
             spec.results = []
             await runAll(setups, spec.env)
             const watch = stopwatch(true)
@@ -31,16 +31,18 @@ const suite = (name, ...tests) => {
                     type: test.type,
                     pathNodes,
                 }
-                const before = [
-                    ...parentBefore,
-                    ...beforeEach,
-                ]
-                const after = [
-                    ...parentAfter,
-                    ...afterEach,
-                ]
-                await test.run(newSpec, specFilter, before, after)
-                spec.results.push(newSpec)
+                if (specFilter(newSpec) === true) {
+                    const before = [
+                        ...parentBefore,
+                        ...beforeEach,
+                    ]
+                    const after = [
+                        ...parentAfter,
+                        ...afterEach,
+                    ]
+                    await test.run(newSpec, specFilter, before, after)
+                    spec.results.push(newSpec)
+                }
             }
             watch.stop()
             await runAll(teardowns, spec.env)
@@ -88,7 +90,7 @@ const test = (name, testFunc) => {
         name,
         shouldRun: true,
         type: "test",
-        run: async (spec, _, before, after) => {
+        run: async (spec, _0, before, after) => {
             await runAll(before, spec.env)
             const watch = stopwatch(true)
             bridge.dispatch("onTestStart", spec)
@@ -148,7 +150,7 @@ const argFuncs = Object.entries({
 const argNames = argFuncs.map(arg => arg[0])
 const argValues = argFuncs.map(arg => arg[1])
 
-module.exports = {
+export default {
     names: argNames,
     args: argValues,
 }

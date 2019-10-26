@@ -1,5 +1,10 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 const runAll = async (actions, ...args) => {
   for (const action of actions) {
     const f = action.run || action;
@@ -7,4 +12,5 @@ const runAll = async (actions, ...args) => {
   }
 };
 
-module.exports = runAll;
+var _default = runAll;
+exports.default = _default;
