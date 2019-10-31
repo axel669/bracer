@@ -9,7 +9,7 @@ var _fastGlob = _interopRequireDefault(require("fast-glob"));
 
 var _argParser = _interopRequireDefault(require("@axel669/arg-parser"));
 
-var _bracer = _interopRequireDefault(require("../core/bracer.js"));
+var _node = _interopRequireDefault(require("../node"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -26,34 +26,45 @@ const loadFile = async url => {
   });
 };
 
-const generateRequire = file => {
-  const mod = new _module.Module(file, module);
-  return mod.require;
-};
+const localModule = new _module.Module(process.cwd());
+
+const requireIfFound = module => module === undefined ? undefined : localModule.require(module);
 
 const args = (0, _argParser.default)({
-  "ignore:i": list => list.split(",").map(glob => glob.trim()).filter(glob => glob !== "")
+  "ignore:i": list => list.split(",").map(glob => glob.trim()).filter(glob => glob !== ""),
+  "reporter:r": i => i,
+  "specFilter:spec-filter|sf": i => i
 });
 const {
   _: [include = "**/*.test.js"],
-  ignore = []
-} = args;
-console.log(include, ignore); // const [, , include = "**/*.test.js", ignore = ""] = process.argv
-//
+  ignore = [],
+  reporter,
+  specFilter
+} = args; // console.log(process.cwd())
 // console.log(
-//     include,
-//     ignore
-//         .split(",")
-//         .map(glob => glob.trim())
-//         .filter(glob => glob !== "")
+//     require.paths
 // )
 //
+// const files = glob.sync(
+//     include,
+//     {
+//         ignore: [
+//             "node_modules/**/*",
+//             ...ignore,
+//         ]
+//     }
+// )
 
-const files = _fastGlob.default.sync(include, {
-  ignore: ["node_modules/**/*", ...ignore]
-});
+const options = {
+  reporter: requireIfFound(reporter),
+  specFilter: requireIfFound(specFilter)
+};
+const files = {
+  include,
+  ignore
+}; // console.log(options)
 
-console.log(files); //
+(0, _node.default)(files, options); //
 // bracer.run({
 //     files,
 //     loadFile,

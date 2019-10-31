@@ -6,7 +6,7 @@ import {Module} from "module"
 import glob from "fast-glob"
 import argParser from "@axel669/arg-parser"
 
-import bracer from "@core/bracer.js"
+import bracer from "@node"
 
 const loadFile = async url => {
     if (typeof window !== "undefined") {
@@ -25,15 +25,14 @@ const loadFile = async url => {
     )
 }
 
-const generateRequire = (file) => {
-    const mod = new Module(file, module)
-    return mod.require
-}
+const localModule = new Module(
+    process.cwd()
+)
 
 const requireIfFound = module =>
     (module === undefined)
         ? undefined
-        : require(module)
+        : localModule.require(module)
 
 const args = argParser({
     "ignore:i": list => list
@@ -50,24 +49,32 @@ const {
     specFilter,
 } = args
 
-const files = glob.sync(
-    include,
-    {
-        ignore: [
-            "node_modules/**/*",
-            ...ignore,
-        ]
-    }
-)
+// console.log(process.cwd())
+// console.log(
+//     require.paths
+// )
+//
+// const files = glob.sync(
+//     include,
+//     {
+//         ignore: [
+//             "node_modules/**/*",
+//             ...ignore,
+//         ]
+//     }
+// )
 const options = {
     reporter: requireIfFound(reporter),
     specFilter: requireIfFound(specFilter),
 }
+const files = {
+    include,
+    ignore,
+}
 
-console.log(files)
+// console.log(options)
 
-bracer.run({
-})
+bracer(files, options)
 
 //
 // bracer.run({

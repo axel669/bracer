@@ -1,5 +1,6 @@
 import fs from "fs"
 import {Module} from "module"
+import path from "path"
 
 import glob from "fast-glob"
 
@@ -24,7 +25,14 @@ const loadFile = async url => {
 
 const generateRequire = (file) => {
     const mod = new Module(file, module)
-    return mod.require
+    mod.filename = path.resolve(file)
+    mod.paths = [
+        path.dirname(mod.filename)
+    ]
+    // console.log(mod)
+    return (file) => {
+        return mod.require(file)
+    }
 }
 
 export default (fileOptions, options) => {

@@ -9,6 +9,8 @@ var _fs = _interopRequireDefault(require("fs"));
 
 var _module = require("module");
 
+var _path = _interopRequireDefault(require("path"));
+
 var _fastGlob = _interopRequireDefault(require("fast-glob"));
 
 var _bracer = _interopRequireDefault(require("../core/bracer.js"));
@@ -30,7 +32,12 @@ const loadFile = async url => {
 
 const generateRequire = file => {
   const mod = new _module.Module(file, module);
-  return mod.require;
+  mod.filename = _path.default.resolve(file);
+  mod.paths = [_path.default.dirname(mod.filename)]; // console.log(mod)
+
+  return file => {
+    return mod.require(file);
+  };
 };
 
 var _default = (fileOptions, options) => {
