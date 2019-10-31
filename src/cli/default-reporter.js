@@ -55,7 +55,7 @@ module.exports = {
 
         if ((test.passed + test.failed) === 0) {
             logColor(
-                "log"
+                "log",
                 `[test finished] ${name} in ${duration}ms`,
                 "yellow"
             )

@@ -22,7 +22,7 @@ const equals = (a, b) => {
 };
 
 const toBe = (a, b) => {
-  if (a.constructor !== b.constructor) {
+  if ((a === null || a === void 0 ? void 0 : a.constructor) !== (b === null || b === void 0 ? void 0 : b.constructor)) {
     return false;
   }
 

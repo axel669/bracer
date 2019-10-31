@@ -14,7 +14,7 @@ const equals = (a, b) => {
     bridge.dispatch("expect.pass")
 }
 const toBe = (a, b) => {
-    if (a.constructor !== b.constructor) {
+    if (a?.constructor !== b?.constructor) {
         return false
     }
 

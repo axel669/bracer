@@ -471,7 +471,7 @@ var bracer = (function () {
         const duration = test.duration.toFixed(3);
 
         if (test.passed + test.failed === 0) {
-          logColor("log"`[test finished] ${name} in ${duration}ms`, "yellow");
+          logColor("log", `[test finished] ${name} in ${duration}ms`, "yellow");
           return;
         }
 
