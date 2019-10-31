@@ -340,10 +340,10 @@ var bracer = (function () {
       args: argValues
     };
 
-    const getSuitesFromFile = (testFunc, ...args) => {
+    const getSuitesFromFile = async (testFunc, ...args) => {
       const suites = [];
       const unsub = bridge.subscribe("suite.create", suite => suites.push(suite));
-      testFunc(...args);
+      await testFunc(...args);
       unsub();
       return suites.filter(suite => suite.parent === undefined);
     };
@@ -353,8 +353,10 @@ var bracer = (function () {
         files,
         loadFile,
         generateRequire,
+        makeFunction,
         reporter = {},
-        specFilter = () => true
+        specFilter = () => true,
+        stopOnFail = false
       } = options;
       const reporterFuncs = Object.entries(reporter).map(([type, handler]) => bridge.subscribe(type, handler));
       bridge.dispatch("onBracerStart");
@@ -364,8 +366,8 @@ var bracer = (function () {
         const shortName = fileName;
         const source = await loadFile(fileName);
         bridge.dispatch("onFileEnter", shortName);
-        const testFunc = new Function(...testFunctions.names, "require", "__filename", source);
-        const suites = getSuitesFromFile(testFunc, ...testFunctions.args, generateRequire(fileName), fileName);
+        const testFunc = makeFunction(...testFunctions.names, "require", "__filename", source);
+        const suites = await getSuitesFromFile(testFunc, ...testFunctions.args, generateRequire(fileName), fileName);
         const fileSuite = {
           type: "file",
           fileName: shortName,
@@ -407,31 +409,132 @@ var bracer = (function () {
       run: runTests
     };
 
-    const loadFile = async url => {
-      const response = await fetch(url);
-      return response.text();
+    const stylestr = colorNum => `\u001b[${colorNum}m`;
+
+    const logColors = {
+      reset: stylestr(0),
+      red: stylestr(31),
+      green: stylestr(32),
+      yellow: stylestr(33),
+      cyan: stylestr(36)
     };
 
-    const loadFileSync = url => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", url, false);
-      xhr.send(null);
-      return xhr.response;
+    const logColor = (func, message, color = "reset") => {
+      const logMessage = `${logColors[color]}${message}${logColors.reset}`;
+      console[func](logMessage);
     };
+
+    const getFileName = test => {
+      let suite = test.suite;
+
+      while (suite.type !== "file") {
+        suite = suite.suite;
+      }
+
+      return suite.fileName;
+    };
+
+    const reportResults = result => {
+      if (result.type === "test") {
+        if (result.failed > 0) {
+          const fileName = getFileName(result);
+          console.group(`${fileName}: ${result.pathNodes.join("/")}`);
+
+          for (const error of result.errors) {
+            console.log(error.message);
+          }
+
+          console.groupEnd();
+        }
+
+        return;
+      }
+
+      for (const testResult of result.results) {
+        reportResults(testResult);
+      }
+    };
+
+    var defaultReporter = {
+      onFileEnter: filename => {
+        logColor("group", filename);
+      },
+      onSuiteStart: suite => {
+        const pad = "  ".repeat(suite.pathNodes.length);
+        logColor("group", suite.name, "cyan");
+      },
+      onTestFinish: test => {
+        const pad = "  ".repeat(test.pathNodes.length);
+        const {
+          name
+        } = test;
+        const duration = test.duration.toFixed(3);
+
+        if (test.passed + test.failed === 0) {
+          logColor("log"`[test finished] ${name} in ${duration}ms`, "yellow");
+          return;
+        }
+
+        if (test.failed > 0) {
+          logColor("groupCollapsed", `[test failed] ${name}`, "red");
+
+          for (const error of test.errors) {
+            logColor("log", error.message, "red");
+          }
+
+          console.groupEnd();
+          return;
+        }
+
+        logColor("log", `[test passed] ${name} in ${duration}ms`, "green");
+      },
+      onSuiteFinish: () => {
+        console.groupEnd();
+      },
+      onFileExit: () => {
+        console.groupEnd();
+      },
+      onBracerFinish: completedSuites => {
+        const duration = completedSuites.reduce((total, {
+          duration
+        }) => total + duration, 0);
+
+        for (const suite of completedSuites) {
+          reportResults(suite);
+        }
+
+        console.log(`Tests finished in ${duration.toFixed(3)}ms`);
+      }
+    };
+
+    var defaultSpecFilter = () => true;
+
+    const loadFile = async url => {
+      const response = await fetch(url);
+      const sourceCode = await response.text();
+      const code = sourceCode.replace(/require(\s|\r|\n)*\(([^"]*?)("([^"]+?)")([^"]*?)\)/g, (match, _0, _1, lib, name) => {
+        return `(await require(${lib}))`;
+      });
+      return code;
+    };
+
+    const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+
+    const makeFunction = (...args) => new AsyncFunction(...args);
 
     const source = new URL("", location);
     const cache = {};
 
     const generateRequire = file => {
       const parent = new URL(file, source);
-      return url => {
+      return async url => {
         const reqURL = new URL(url, parent).href;
 
         if (cache.hasOwnProperty(reqURL) === false) {
-          const code = loadFileSync(reqURL);
+          const code = await loadFile(reqURL);
           const module = {};
           const exports = {};
-          const mod = new Function("module", "exports", "__filename", code);
+          const mod = makeFunction("module", "exports", "__filename", code);
           module.exports = exports;
           mod(module, exports, reqURL.pathname);
           cache[reqURL] = module.exports;
@@ -441,12 +544,20 @@ var bracer = (function () {
       };
     };
 
-    var index = ((files, options) => bracer.run({
-      loadFile,
-      generateRequire,
-      files,
-      ...options
-    }));
+    var index = ((files, options = {}) => {
+      const {
+        reporter = defaultReporter,
+        specFilter = defaultSpecFilter
+      } = options;
+      bracer.run({
+        loadFile,
+        generateRequire,
+        makeFunction,
+        files,
+        reporter,
+        specFilter
+      });
+    });
 
     return index;
 

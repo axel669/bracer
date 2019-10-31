@@ -29,10 +29,10 @@ const localModule = new Module(
     process.cwd()
 )
 
-const requireIfFound = module =>
-    (module === undefined)
-        ? undefined
-        : localModule.require(module)
+const requireOrDefault = (module, def) =>
+    (module !== undefined)
+        ? localModule.require(module)
+        : require(def)
 
 const args = argParser({
     "ignore:i": list => list
@@ -49,57 +49,14 @@ const {
     specFilter,
 } = args
 
-// console.log(process.cwd())
-// console.log(
-//     require.paths
-// )
-//
-// const files = glob.sync(
-//     include,
-//     {
-//         ignore: [
-//             "node_modules/**/*",
-//             ...ignore,
-//         ]
-//     }
-// )
+
 const options = {
-    reporter: requireIfFound(reporter),
-    specFilter: requireIfFound(specFilter),
+    reporter: requireOrDefault(reporter, "./default-reporter.js"),
+    specFilter: requireOrDefault(specFilter, "./default-spec-filter.js"),
 }
 const files = {
     include,
     ignore,
 }
 
-// console.log(options)
-
 bracer(files, options)
-
-//
-// bracer.run({
-//     files,
-//     loadFile,
-//     generateRequire,
-// })
-
-
-
-// export default (fileOptions, options) => {
-//     const {include, ignore = []} = fileOptions
-//     const files = glob.sync(
-//         include,
-//         {
-//             ignore: [
-//                 "node_modules/**/*",
-//                 ...ignore,
-//             ]
-//         }
-//     )
-//     return bracer.run({
-//         files,
-//         loadFile,
-//         generateRequire,
-//         ...options,
-//     })
-// }

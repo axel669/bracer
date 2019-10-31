@@ -29,11 +29,12 @@ const generateRequire = (file) => {
     mod.paths = [
         path.dirname(mod.filename)
     ]
-    // console.log(mod)
     return (file) => {
         return mod.require(file)
     }
 }
+
+const makeFunction = (...args) => new Function(...args)
 
 export default (fileOptions, options) => {
     const {include, ignore = []} = fileOptions
@@ -47,9 +48,10 @@ export default (fileOptions, options) => {
         }
     )
     return bracer.run({
+        ...options,
         files,
         loadFile,
         generateRequire,
-        ...options,
+        makeFunction,
     })
 }

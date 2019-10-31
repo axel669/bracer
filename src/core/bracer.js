@@ -4,13 +4,13 @@ import testFunctions from "@core/test-functions.js"
 import runAll from "@core/run-all.js"
 import stopwatch from "@core/stopwatch.js"
 
-const getSuitesFromFile = (testFunc, ...args) => {
+const getSuitesFromFile = async (testFunc, ...args) => {
     const suites = []
     const unsub = bridge.subscribe(
         "suite.create",
         suite => suites.push(suite)
     )
-    testFunc(...args)
+    await testFunc(...args)
     unsub()
 
     return suites.filter(
@@ -23,8 +23,10 @@ const runTests = async (options = {}) => {
         files,
         loadFile,
         generateRequire,
+        makeFunction,
         reporter = {},
         specFilter = () => true,
+        stopOnFail = false,
     } = options
 
     const reporterFuncs = Object.entries(reporter)
@@ -42,14 +44,14 @@ const runTests = async (options = {}) => {
 
         bridge.dispatch("onFileEnter", shortName)
 
-        const testFunc = new Function(
+        const testFunc = makeFunction(
             ...testFunctions.names,
             "require",
             "__filename",
             source,
         )
 
-        const suites = getSuitesFromFile(
+        const suites = await getSuitesFromFile(
             testFunc,
             ...testFunctions.args,
             generateRequire(fileName),

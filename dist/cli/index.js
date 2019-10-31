@@ -28,7 +28,7 @@ const loadFile = async url => {
 
 const localModule = new _module.Module(process.cwd());
 
-const requireIfFound = module => module === undefined ? undefined : localModule.require(module);
+const requireOrDefault = (module, def) => module !== undefined ? localModule.require(module) : require(def);
 
 const args = (0, _argParser.default)({
   "ignore:i": list => list.split(",").map(glob => glob.trim()).filter(glob => glob !== ""),
@@ -40,51 +40,13 @@ const {
   ignore = [],
   reporter,
   specFilter
-} = args; // console.log(process.cwd())
-// console.log(
-//     require.paths
-// )
-//
-// const files = glob.sync(
-//     include,
-//     {
-//         ignore: [
-//             "node_modules/**/*",
-//             ...ignore,
-//         ]
-//     }
-// )
-
+} = args;
 const options = {
-  reporter: requireIfFound(reporter),
-  specFilter: requireIfFound(specFilter)
+  reporter: requireOrDefault(reporter, "./default-reporter.js"),
+  specFilter: requireOrDefault(specFilter, "./default-spec-filter.js")
 };
 const files = {
   include,
   ignore
-}; // console.log(options)
-
-(0, _node.default)(files, options); //
-// bracer.run({
-//     files,
-//     loadFile,
-//     generateRequire,
-// })
-// export default (fileOptions, options) => {
-//     const {include, ignore = []} = fileOptions
-//     const files = glob.sync(
-//         include,
-//         {
-//             ignore: [
-//                 "node_modules/**/*",
-//                 ...ignore,
-//             ]
-//         }
-//     )
-//     return bracer.run({
-//         files,
-//         loadFile,
-//         generateRequire,
-//         ...options,
-//     })
-// }
+};
+(0, _node.default)(files, options);

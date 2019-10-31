@@ -33,12 +33,13 @@ const loadFile = async url => {
 const generateRequire = file => {
   const mod = new _module.Module(file, module);
   mod.filename = _path.default.resolve(file);
-  mod.paths = [_path.default.dirname(mod.filename)]; // console.log(mod)
-
+  mod.paths = [_path.default.dirname(mod.filename)];
   return file => {
     return mod.require(file);
   };
 };
+
+const makeFunction = (...args) => new Function(...args);
 
 var _default = (fileOptions, options) => {
   const {
@@ -50,11 +51,11 @@ var _default = (fileOptions, options) => {
     ignore: ["node_modules/**/*", ...ignore]
   });
 
-  return _bracer.default.run({
+  return _bracer.default.run({ ...options,
     files,
     loadFile,
     generateRequire,
-    ...options
+    makeFunction
   });
 };
 

@@ -9,6 +9,7 @@ module.exports = {
                     "@core": "core",
                     "@node": "node",
                     "@browser": "browser",
+                    "@cli": "cli",
                 },
             },
         ],

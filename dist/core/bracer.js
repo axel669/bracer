@@ -15,12 +15,12 @@ var _stopwatch = _interopRequireDefault(require("./stopwatch.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const getSuitesFromFile = (testFunc, ...args) => {
+const getSuitesFromFile = async (testFunc, ...args) => {
   const suites = [];
 
   const unsub = _bridge.default.subscribe("suite.create", suite => suites.push(suite));
 
-  testFunc(...args);
+  await testFunc(...args);
   unsub();
   return suites.filter(suite => suite.parent === undefined);
 };
@@ -30,8 +30,10 @@ const runTests = async (options = {}) => {
     files,
     loadFile,
     generateRequire,
+    makeFunction,
     reporter = {},
-    specFilter = () => true
+    specFilter = () => true,
+    stopOnFail = false
   } = options;
   const reporterFuncs = Object.entries(reporter).map(([type, handler]) => _bridge.default.subscribe(type, handler));
 
@@ -45,8 +47,8 @@ const runTests = async (options = {}) => {
 
     _bridge.default.dispatch("onFileEnter", shortName);
 
-    const testFunc = new Function(..._testFunctions.default.names, "require", "__filename", source);
-    const suites = getSuitesFromFile(testFunc, ..._testFunctions.default.args, generateRequire(fileName), fileName);
+    const testFunc = makeFunction(..._testFunctions.default.names, "require", "__filename", source);
+    const suites = await getSuitesFromFile(testFunc, ..._testFunctions.default.args, generateRequire(fileName), fileName);
     const fileSuite = {
       type: "file",
       fileName: shortName,

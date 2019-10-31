@@ -9,10 +9,10 @@ module.exports = {
                     "@core": "core",
                     "@node": "node",
                     "@browser": "browser",
+                    "@cli": "cli",
                 },
             },
         ],
-        // "@babel/plugin-transform-modules-commonjs",
         "@babel/plugin-proposal-nullish-coalescing-operator",
         "@babel/plugin-proposal-optional-chaining",
     ]
