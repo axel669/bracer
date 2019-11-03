@@ -5,8 +5,9 @@
   "main": "dist/node/index.js",
   "scripts": {
     "test": "npm run build && bracer",
-    "build": "rm dist -rf && babel src --config-file ./babel.node.config.js -d dist --ignore src/browser/*",
-    "build-browser": "rollup -c"
+    "build-node": "rm dist -rf && babel src --config-file ./babel.node.config.js -d dist --ignore src/browser/*",
+    "build-browser": "rollup -c",
+    "build": "npm run build-node && npm run build-browser"
   },
   "bin": {
     "bracer": "./dist/cli/index.js"
@@ -44,5 +45,9 @@
   "dependencies": {
     "@axel669/arg-parser": "^0.2.0",
     "fast-glob": "^3.0.4"
-  }
+  },
+  "files": [
+    "/dist",
+    "/standalone"
+  ]
 }
