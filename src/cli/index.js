@@ -8,23 +8,6 @@ import argParser from "@axel669/arg-parser"
 
 import bracer from "@node"
 
-const loadFile = async url => {
-    if (typeof window !== "undefined") {
-        const response = await fetch(url)
-        return response.text()
-    }
-
-    return new Promise(
-        resolve => {
-            require("fs").readFile(
-                url,
-                {encoding: "utf8"},
-                (err, data) => resolve(data)
-            )
-        }
-    )
-}
-
 const localModule = new Module(
     process.cwd()
 )
@@ -59,4 +42,24 @@ const files = {
     ignore,
 }
 
-bracer(files, options)
+const checkResults = result => {
+    if (result.type === "test") {
+        if (result.failed > 0) {
+            process.exit(1)
+        }
+        return
+    }
+
+    for (const testResult of result.results) {
+        checkResults(testResult)
+    }
+}
+
+const main = async () => {
+    const results = await bracer(files, options)
+    for (const result of results) {
+        checkResults(result)
+    }
+}
+
+main()

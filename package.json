@@ -1,10 +1,10 @@
 {
   "name": "@axel669/bracer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Small testing framework for node & browser testing",
   "main": "dist/node/index.js",
   "scripts": {
-    "test": "npm run build && bracer",
+    "test": "npm run build && node dist/cli/index.js tests/math.test.js",
     "build-node": "rm dist -rf && babel src --config-file ./babel.node.config.js -d dist --ignore src/browser/*",
     "build-browser": "rollup -c",
     "build": "npm run build-node && npm run build-browser"
